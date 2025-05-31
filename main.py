@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import pickle
 
 # Load the pre-trained Iris model
-with open("./Model/R1.pkl", "rb") as fileobj:
+with open("./Model/R2.pkl", "rb") as fileobj:
     iris_model = pickle.load(fileobj)
 
 # Create the FastAPI app
