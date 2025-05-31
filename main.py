@@ -1,24 +1,41 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
+import pickle
 
+# Load the pre-trained Iris model
+with open("./Model/R1.pkl", "rb") as fileobj:
+    iris_model = pickle.load(fileobj)
+
+# Create the FastAPI app
 app = FastAPI()
+
 
 # Root route
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
-# Request body model for POST
-class NumberInput(BaseModel):
-    number: int
 
-# Correct POST route to get the square of a number
-@app.post("/get_square")
-async def get_square(input: NumberInput):
-    return {"square": input.number ** 2}
+# Request body model for flower features
+class IrisFeatures(BaseModel):
+    sepal_length: float
+    sepal_width: float
+    petal_length: float
+    petal_width: float
 
-# Route with path parameter
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+
+# Prediction route
+@app.post("/predict")
+async def predict_iris(features: IrisFeatures):
+    input_data = [[
+        features.sepal_length,
+        features.sepal_width,
+        features.petal_length,
+        features.petal_width
+    ]]
+
+    prediction = iris_model.predict(input_data)
+    flower_type = int(prediction[0])  # Convert numpy.int64 to int if needed
+
+    return {"prediction": flower_type}
 
